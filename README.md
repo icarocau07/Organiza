@@ -63,35 +63,6 @@ organiza/
 └── README.md
 ```
 
-## 🔔 Configurar notificações Web Push
-
-**Guia completo:** [Instalar Web Push com Supabase e Netlify](docs/WEB_PUSH_PASSO_A_PASSO.md).
-
-O Web Push exige executar `supabase/sql/04_notificacoes_web_push.sql`, configurar cinco variáveis de ambiente **somente no Netlify** e publicar via GitHub. As notificações precisam ser autorizadas pelo usuário no sino da `home.html`. **Não há entrega garantida ao minuto.**
-
-## ▶️ Como executar localmente
-
-1. Faça download deste repositório (ou execute `git clone` depois de publicá-lo).
-2. Abra a pasta `organiza` no **VS Code**.
-3. Abra `site/index.html` com a extensão **Live Server** (ou outro servidor HTTP local).
-4. Acesse o endereço que o Live Server informar. Ao entrar, a aplicação abre `home.html`.
-
-O arquivo `site/config.js` contém a **URL e a publishable key públicas** do projeto de demonstração. Para conectar sua própria instância do Supabase, altere somente esses dois valores e configure seu banco seguindo [o guia de configuração](docs/CONFIGURACAO.md).
-
-> ⚠️ **Segurança:** nunca coloque senha SMTP, senha do banco, `service_role`, `sb_secret_...` ou tokens de sessão dentro de `site/` ou em commits. A chave `sb_publishable_...` é pública por design; as políticas RLS são indispensáveis para proteger os dados.
-
-## 🗄️ Supabase (para quem quiser hospedar sua própria cópia)
-
-Em um **projeto novo**, execute no SQL Editor, nesta ordem:
-
-1. `supabase/sql/01_criar_tabela_e_rls.sql`
-2. `supabase/sql/02_adicionar_prazos_e_recorrencia.sql`
-3. `supabase/sql/03_adicionar_horario.sql`
-
-**Não reexecute o primeiro script no banco do Organiza já existente.** Os arquivos SQL são incluídos para documentar e reproduzir a estrutura. A recuperação de senha também requer configurar as URLs permitidas em **Authentication → URL Configuration** e um remetente SMTP em **Authentication → SMTP Settings**.
-
-Veja [instruções completas de configuração e publicação](docs/CONFIGURACAO.md).
-
 ## 🚀 Deploy pelo GitHub no Netlify
 
 Este repositório inclui `netlify.toml` com **Publish directory: `site`** e não precisa de build. Conecte o repositório ao seu site existente no Netlify para automatizar os próximos deploys.
