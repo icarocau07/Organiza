@@ -4,6 +4,12 @@ self.addEventListener("push", (event) => {
   let payload = {};
   try { payload = event.data?.json() || {}; }
   catch { payload = {}; }
+  // Se o provedor/OS entregou tarde, não mostramos um lembrete antecipado vencido.
+  // O TTL curto no servidor também reduz esse risco durante o transporte.
+  if (typeof payload.dueAt === "string" && Number.isFinite(Date.parse(payload.dueAt)) &&
+      Date.now() >= Date.parse(payload.dueAt)) {
+    return;
+  }
   const title = typeof payload.title === "string" ? payload.title : "Organiza";
   const body = typeof payload.body === "string" ? payload.body : "Você tem uma tarefa para realizar.";
   const tag = typeof payload.tag === "string" ? payload.tag : "organiza-lembrete";

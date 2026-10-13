@@ -14,6 +14,11 @@
   const status = $("push-status");
   const mensagem = $("push-mensagem");
   let busy = false;
+  const KEY_ANTECEDENCIA = "organiza-push-antecedencia";
+  const antecedenciaSalva = localStorage.getItem(KEY_ANTECEDENCIA);
+  if (["5", "15", "30", "60"].includes(antecedenciaSalva)) {
+    antecedencia.value = antecedenciaSalva;
+  }
 
   function feedback(text, error = false) {
     mensagem.textContent = text;
@@ -24,6 +29,31 @@
   function suportado() {
     return window.isSecureContext && "serviceWorker" in navigator &&
       "PushManager" in window && "Notification" in window;
+  }
+
+  function iosSemInstalacao() {
+    const eIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    const instalado = window.matchMedia("(display-mode: standalone)").matches ||
+      navigator.standalone === true;
+    return eIOS && !instalado;
+  }
+
+  function mensagemErroPush(error) {
+    const texto = String(error?.message || "");
+    if (/push service error|registration failed/i.test(texto)) {
+      return "O serviço Push deste navegador não respondeu. Verifique rede, VPN, proxy, extensões de privacidade e se o navegador está atualizado. Teste também em outra rede. Detalhes: " + texto;
+    }
+    if (/AbortError|NetworkError|Failed to fetch/i.test(error?.name + " " + texto)) {
+      return "Falha de rede ao registrar notificações. Verifique as permissões e a conexão do navegador com o serviço Push. Detalhes: " + texto;
+    }
+    if (/NotAllowedError|permission|denied/i.test(error?.name + " " + texto)) {
+      return "Notificações bloqueadas. Nas configurações do navegador, permita notificações para organizadev.netlify.app.";
+    }
+    if (/InvalidStateError|not active/i.test(error?.name + " " + texto)) {
+      return "O Service Worker ainda não está pronto. Atualize a página e tente novamente.";
+    }
+    return texto || "Não foi possível ativar notificações neste navegador.";
   }
 
   function uint8Array(chave) {
@@ -61,8 +91,10 @@
   }
 
   async function estado() {
-    if (!suportado()) {
-      status.textContent = "Este navegador não oferece suporte a Web Push neste modo. No iPhone, instale o site na Tela de Início.";
+    if (!suportado() || iosSemInstalacao()) {
+      status.textContent = iosSemInstalacao()
+        ? "No iPhone/iPad, adicione o Organiza à Tela de Início e abra pelo ícone para ativar o Web Push."
+        : "Este navegador ou modo não suporta Web Push. Use uma versão atual do Chrome, Edge, Firefox ou Safari com notificações habilitadas.";
       ativar.disabled = true;
       desativar.disabled = true;
       testar.disabled = true;
@@ -85,7 +117,7 @@
     busy = true;
     ativar.disabled = desativar.disabled = testar.disabled = true;
     try { await callback(); }
-    catch (err) { feedback(err.message, true); }
+    catch (err) { feedback(mensagemErroPush(err), true); }
     finally {
       busy = false;
       try { await estado(); }
@@ -117,7 +149,9 @@
       const response = await fetch("/api/push", { cache: "no-store" });
       const config = await response.json();
       if (!response.ok || !config.publicKey) throw new Error(config.error || "Chave VAPID não configurada no Netlify.");
-      const { registro, subscricao: antiga } = await subscricaoAtual();
+      const { subscricao: antiga } = await subscricaoAtual();
+      // Aguarda o Service Worker ficar ativo, importante em alguns navegadores.
+      const registro = await navigator.serviceWorker.ready;
       const subscricao = antiga || await registro.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: uint8Array(config.publicKey)
@@ -132,7 +166,8 @@
         if (!antiga) await subscricao.unsubscribe();
         throw err;
       }
-      feedback("Notificações ativadas! Você receberá lembretes das tarefas com data e horário.");
+      localStorage.setItem(KEY_ANTECEDENCIA, antecedencia.value);
+      feedback("Notificações ativadas! O aviso antecipado chega antes do horário, sujeito ao agendamento e à entrega do navegador.");
     });
   });
 
@@ -162,6 +197,7 @@
         leadMinutes: Number(antecedencia.value),
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
       });
+      localStorage.setItem(KEY_ANTECEDENCIA, antecedencia.value);
       feedback("Antecedência atualizada para este dispositivo.");
     });
   });

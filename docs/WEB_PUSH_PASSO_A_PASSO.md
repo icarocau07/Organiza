@@ -88,7 +88,7 @@ As Scheduled Functions são executadas no deploy publicado. O cron é em UTC; a 
 6. Crie uma tarefa **com data e hora** daqui a aproximadamente 20–25 minutos e aguarde o aviso no horário correspondente.
 7. Feche a aba para testar o recebimento em segundo plano.
 
-O cron roda a cada 5 minutos, então o aviso pode chegar com atraso de alguns minutos. Se a tarefa continuar pendente, há também um aviso de atraso aproximadamente 5 minutos após vencer.
+O cron roda a cada 5 minutos e o horário real pode variar. **Esta versão nunca envia o lembrete antecipado depois do vencimento e remove o aviso adicional de atraso**. Se a função executar tarde demais, o lembrete é pulado em vez de ser enviado após o horário. Recomenda-se **15 minutos** em vez de 5 minutos, pois dá maior margem para atrasos do agendador e do navegador. A entrega do serviço Push ainda pode sofrer atrasos independentes depois do envio.
 
 **Tarefas somente com data, sem horário, não geram push.** Tarefas concluídas não devem gerar novos avisos. Tarefas recorrentes agendadas para a próxima data podem voltar a gerar push normalmente.
 
@@ -96,7 +96,11 @@ O cron roda a cada 5 minutos, então o aviso pode chegar com atraso de alguns mi
 
 - **Android (Chrome):** permita notificações para o navegador/site. O Android pode restringir notificações quando o navegador é economizado ou está em modo de economia de bateria.
 - **iPhone/iPad (iOS/iPadOS 16.4+):** no Safari, abra o site, use **Compartilhar → Adicionar à Tela de Início**, abra o Organiza pelo ícone instalado, faça login e ative pelo sino. O Web Push não funciona do mesmo jeito em uma aba comum no iPhone.
-- **Desktop:** use Chrome, Edge, Firefox ou Safari compatível; permita notificações para o site e também no sistema operacional.
+- **Desktop:** use Chrome, Edge, Firefox ou Safari compatível; permita notificações para o site e também no sistema operacional. Cada navegador exige ativação individual.
+- **Firefox:** em Configurações → Privacidade e Segurança → Permissões → Notificações, permita `organizadev.netlify.app`. Evite modo privado para inscrição.
+- **Edge:** em Configurações → Cookies e permissões do site (ou Permissões do site) → Notificações, permita o domínio. Verifique também notificações do Windows.
+- **Safari no Mac:** autorize notificações nas configurações do Safari e no macOS.
+- **Brave/Opera e outros:** o funcionamento depende da versão e do serviço Push do navegador; não existe configuração que garanta Web Push em qualquer navegador/rede.
 
 Cada dispositivo deve ativar suas próprias notificações. O mesmo usuário pode ter mais de um dispositivo inscrito.
 
@@ -112,6 +116,8 @@ Cada dispositivo deve ativar suas próprias notificações. O mesmo usuário pod
 | Teste chega, lembrete não | A tarefa precisa de **data e horário**; confira fuso horário, cron agendado e Logs |
 | iPhone não permite | Instale o app na Tela de Início e abra pelo ícone |
 | "Permission denied" | Altere a permissão de notificações nas configurações do navegador/site |
+| "Registration failed - push service error" | Navegador não alcançou seu provedor Push: teste outra rede/VPN/firewall, atualize navegador, confirme permissões; o problema ocorre antes do Supabase |
+| Só recebe notificações após vencer | Atualize esta versão corrigida, selecione 15 minutos e crie tarefa com 30 minutos de antecedência; confira os logs da função agendada |
 
 Os envios dependem de rede, bateria, permissão e entrega do provedor push. A função do Netlify é agendada, não em tempo real: não há garantia de entrega em um horário exato.
 

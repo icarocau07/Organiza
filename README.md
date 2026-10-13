@@ -114,3 +114,7 @@ Notificações de prazos, pesquisa, indicadores de produtividade e melhorias de 
 
 
 > **Aviso:** A versão Web Push requer Functions do Netlify; abrir apenas o HTML com Live Server permite editar as tarefas, mas não executa as Functions de envio.
+
+### Atualização: lembretes antes do horário (outubro de 2026)
+
+Lembretes antecipados são enviados **somente antes do prazo**. O aviso separado após o vencimento foi removido. O agendamento roda a cada cinco minutos e a entrega pelo navegador pode variar, portanto a opção de **15 minutos** é recomendada. Veja [o guia de compatibilidade](docs/CORRECAO_HORARIOS_NAVEGADORES.md).

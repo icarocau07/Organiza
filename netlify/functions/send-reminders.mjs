@@ -1,6 +1,7 @@
 import webpush from "web-push";
 import { DateTime } from "luxon";
 import { getAdmin, getVapid } from "../lib/push-shared.mjs";
+import { decidirLembreteAntecipado } from "../lib/reminder-time.mjs";
 
 const PAGE_SIZE = 500;
 const MAX_SENDS_PER_RUN = 80; // Protege a execução contra excesso de chamadas na função agendada.
@@ -48,14 +49,17 @@ export default async function handler() {
         const due = DateTime.fromISO(`${task.data_limite}T${localTime}`, { zone: row.timezone });
         if (!due.isValid) continue;
         const scheduledFor = due.toUTC().toISO();
-        const before = due.minus({ minutes: row.lead_minutes });
-        const late = due.plus({ minutes: 5 });
-        const minutesAfterReminder = now.diff(before, "minutes").minutes;
-        const minutesAfterLate = now.diff(late, "minutes").minutes;
-        // Um lembrete antecipado e, se seguir pendente, um aviso de atraso.
-        const lateNotice = minutesAfterLate >= 0 && minutesAfterLate < 10;
-        if (!(minutesAfterReminder >= 0 && minutesAfterReminder < 10) && !lateNotice) continue;
-        const noticeLead = lateNotice ? -1 : row.lead_minutes;
+        // NUNCA envia push depois da hora. O cron roda a cada 5 minutos:
+        // toleramos uma janela pequena depois do instante programado,
+        // mas sempre antes do vencimento real da tarefa.
+        const lembrete = decidirLembreteAntecipado(
+          now.toMillis(), due.toMillis(), Number(row.lead_minutes)
+        );
+        if (!lembrete) continue;
+
+        // Reconfirma o relógio real: uma rodada com muitos usuários pode demorar.
+        // Jamais reserva nem envia uma notificação antecipada se a tarefa já venceu.
+        if (!decidirLembreteAntecipado(Date.now(), due.toMillis(), Number(row.lead_minutes))) continue;
 
         // Reforço contra tarefas alteradas/concluídas entre a consulta e o envio.
         const { data: latest, error: latestError } = await admin.from("tarefas")
@@ -69,19 +73,24 @@ export default async function handler() {
           subscription_id: row.id,
           task_id: task.id,
           scheduled_for: scheduledFor,
-          lead_minutes: noticeLead
+          lead_minutes: row.lead_minutes
         }).select("id").single();
         if (claimError?.code === "23505") continue;
         if (claimError) { console.error("Falha ao reservar lembrete:", claimError.message); continue; }
         try {
+          // O Push Service não deve guardar um lembrete para entregar após o prazo.
+          const segundosRestantes = Math.floor((due.toMillis() - Date.now()) / 1000);
+          if (segundosRestantes <= 0) {
+            await admin.from("push_delivery_log").delete().eq("id", claim.id);
+            continue;
+          }
           await webpush.sendNotification(row.subscription, JSON.stringify({
-            title: lateNotice ? "Organiza · Tarefa atrasada" : "Organiza · Lembrete de tarefa",
-            body: lateNotice
-              ? `${task.texto} — o horário já passou e a tarefa ainda está pendente.`
-              : `${task.texto} — começa em aproximadamente ${row.lead_minutes} minutos.`,
+            title: "Organiza · Lembrete de tarefa",
+            body: `${task.texto} — começa em aproximadamente ${Math.ceil(segundosRestantes / 60)} minuto${Math.ceil(segundosRestantes / 60) === 1 ? "" : "s"}.`,
             url: "/home.html",
-            tag: `task-${task.id}-${Date.parse(scheduledFor)}-${noticeLead}`
-          }), { TTL: 900, timeout: 7000 });
+            dueAt: scheduledFor,
+            tag: `task-${task.id}-${Date.parse(scheduledFor)}-${row.lead_minutes}`
+          }), { TTL: Math.min(900, segundosRestantes), timeout: 7000 });
           sent++;
         } catch (err) {
           if ([404, 410].includes(err.statusCode)) {

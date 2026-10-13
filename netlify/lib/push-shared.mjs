@@ -38,7 +38,9 @@ export function validEndpoint(endpoint) {
     const host = url.hostname.toLowerCase();
     // Lista de provedores Web Push conhecidos; não enviar requisições arbitrárias do servidor.
     return host === "fcm.googleapis.com" ||
+      host === "fcm-xm.googleapis.com" ||
       host === "android.googleapis.com" ||
+      host === "push.services.mozilla.com" ||
       host === "updates.push.services.mozilla.com" ||
       host === "web.push.apple.com" ||
       host.endsWith(".push.apple.com") ||

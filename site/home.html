@@ -218,12 +218,12 @@
         <label for="push-antecedencia">Avisar antes do horário</label>
         <select id="push-antecedencia">
           <option value="5">5 minutos</option>
-          <option value="15" selected>15 minutos</option>
+          <option value="15" selected>15 minutos (recomendado)</option>
           <option value="30">30 minutos</option>
           <option value="60">1 hora</option>
         </select>
       </div>
-      <p class="field-help">Somente tarefas pendentes com data e horário recebem avisos. As configurações são individuais por dispositivo.</p>
+      <p class="field-help">Somente tarefas pendentes com data e horário recebem avisos. O sistema verifica a cada 5 minutos; a opção de 15 minutos é mais confiável do que a de 5. Não envia avisos antecipados depois de vencer.</p>
       <div class="notifications-actions">
         <button type="button" id="push-ativar" class="primary-button">Ativar notificações</button>
         <button type="button" id="push-testar" class="outline-button" disabled>Enviar teste</button>
