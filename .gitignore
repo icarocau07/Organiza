@@ -1,0 +1,33 @@
+# Credenciais e configurações locais sensíveis
+.env
+.env.*
+!.env.example
+*.local
+*.secret
+secrets/
+credentials/
+
+# Nunca versionar senhas/certificados
+*.pem
+*.p12
+*.key
+
+# Dependências e artefatos locais
+node_modules/
+dist/
+build/
+coverage/
+.netlify/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# Backups de projeto e pacotes gerados
+*.zip
+*.bak
+*~
+
+# config.js NÃO deve ser ignorado: contém somente a URL e a publishable key PÚBLICAS do Supabase.
+# Nunca adicionar a ele credenciais privadas.

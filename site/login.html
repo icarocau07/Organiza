@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>Entrar | Organiza</title>
+  <script>
+    (() => {
+      const salvo = localStorage.getItem("organiza-tema");
+      const escuro = salvo === "escuro" ||
+        (salvo === null && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = escuro ? "dark" : "light";
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="config.js" defer></script>
+  <script src="login.js" defer></script>
+</head>
+<body>
+  <main class="login-shell">
+    <section class="panel login-panel" aria-labelledby="login-title">
+      <div class="login-heading">
+        <div class="brand-mark" aria-hidden="true">✓</div>
+        <button type="button" id="theme-toggle" class="icon-button" aria-label="Alternar tema" title="Alternar modo claro/escuro">☾</button>
+      </div>
+      <h1 id="login-title">Bem-vindo ao Organiza</h1>
+      <p class="login-description">Entre na sua conta ou crie uma para salvar suas tarefas na nuvem.</p>
+
+      <form id="login-form" class="login-form">
+        <label for="email">E-mail</label>
+        <input id="email" type="email" autocomplete="email" placeholder="seuemail@exemplo.com" required>
+        <label for="senha">Senha</label>
+        <input id="senha" type="password" autocomplete="current-password" minlength="6" placeholder="Sua senha" required>
+        <button type="submit" id="entrar" class="primary-button">Entrar</button>
+        <button type="button" id="cadastrar" class="outline-button">Criar conta</button>
+      </form>
+      <div class="login-options">
+        <button type="button" id="esqueci-senha" class="text-link-button">Esqueci minha senha</button>
+      </div>
+      <p id="mensagem" class="message" role="status" aria-live="polite" hidden></p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>Redefinir senha | Organiza</title>
+  <script>
+    (() => {
+      const salvo = localStorage.getItem("organiza-tema");
+      const escuro = salvo === "escuro" ||
+        (salvo === null && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = escuro ? "dark" : "light";
+
+      // Guardar o tipo ANTES de o Supabase processar e limpar o link do e-mail.
+      window.organizaVeioDeRecuperacao =
+        new URLSearchParams(window.location.hash.substring(1)).get("type") === "recovery";
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="config.js" defer></script>
+  <script src="redefinir-senha.js" defer></script>
+</head>
+<body>
+  <main class="login-shell">
+    <section class="panel login-panel" aria-labelledby="reset-title">
+      <div class="login-heading">
+        <div class="brand-mark" aria-hidden="true">✓</div>
+        <button type="button" id="theme-toggle" class="icon-button"
+                aria-label="Alternar tema" title="Alternar modo claro/escuro">☾</button>
+      </div>
+
+      <h1 id="reset-title">Crie uma nova senha</h1>
+      <p class="login-description">Escolha uma senha nova para continuar usando sua conta no Organiza.</p>
+
+      <form id="reset-form" class="login-form" hidden>
+        <label for="nova-senha">Nova senha</label>
+        <input id="nova-senha" type="password" minlength="8"
+               autocomplete="new-password" placeholder="Pelo menos 8 caracteres" required>
+
+        <label for="confirmar-senha">Confirme a nova senha</label>
+        <input id="confirmar-senha" type="password" minlength="8"
+               autocomplete="new-password" placeholder="Digite a senha novamente" required>
+
+        <button id="salvar-senha" type="submit" class="primary-button">Salvar nova senha</button>
+      </form>
+
+      <p id="reset-mensagem" class="message" role="status" aria-live="polite">
+        Verificando o link de recuperação...
+      </p>
+
+      <div class="login-options">
+        <a class="text-link" href="./">Voltar para o login</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

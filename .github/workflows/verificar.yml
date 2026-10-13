@@ -1,0 +1,19 @@
+name: Verificar arquivos do Organiza
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obter código
+        uses: actions/checkout@v4
+      - name: Validar sintaxe JavaScript
+        run: |
+          for file in site/*.js; do
+            node --check "$file"
+          done
+      - name: Conferir arquivos locais referenciados nos HTMLs
+        run: python3 scripts/verificar_links.py

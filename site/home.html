@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f172a">
+  <title>Organiza | Minhas tarefas</title>
+
+  <!-- Define o tema antes de mostrar a página, evitando o clarão inicial. -->
+  <script>
+    (() => {
+      const salvo = localStorage.getItem("organiza-tema");
+      const escuro = salvo === "escuro" ||
+        (salvo === null && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      document.documentElement.dataset.theme = escuro ? "dark" : "light";
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="config.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="page-shell">
+    <p id="carregando" class="loading-message" role="status">Verificando sua conta...</p>
+
+    <main id="aplicativo" class="panel" hidden>
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">✓</div>
+          <div>
+            <h1>Organiza</h1>
+            <p>Organize seu dia, uma tarefa de cada vez.</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button type="button" id="theme-toggle" class="icon-button" aria-label="Alternar tema" title="Alternar modo claro/escuro">☾</button>
+          <button type="button" id="abrir-perfil" class="avatar-button" aria-label="Abrir meu perfil" title="Meu perfil">
+            <span id="avatar-topo">U</span>
+          </button>
+        </div>
+      </header>
+
+      <section class="section" aria-labelledby="titulo-criar">
+        <div class="create-task-banner">
+          <div class="create-task-copy">
+            <h2 id="titulo-criar">Organize suas próximas atividades</h2>
+            <p>Cadastre uma tarefa com prazo, categoria e recorrência.</p>
+          </div>
+          <button type="button" id="abrir-criar-tarefa" class="primary-button create-task-button" disabled>
+            <span aria-hidden="true">＋</span> Criar tarefa
+          </button>
+        </div>
+      </section>
+
+      <p id="aviso" class="message" role="status" aria-live="polite" hidden></p>
+
+      <section class="section" aria-labelledby="titulo-lista">
+        <div class="tasks-heading">
+          <div>
+            <h2 id="titulo-lista">Minhas tarefas</h2>
+            <p id="contador">0 de 0 concluídas</p>
+            <p id="resumo-atrasadas" class="overdue-summary" hidden></p>
+          </div>
+          <button type="button" id="limpar-concluidas" class="outline-button" disabled>Limpar concluídas</button>
+        </div>
+
+        <div class="filters">
+          <div class="field">
+            <label for="filtro-status">Estado</label>
+            <select id="filtro-status">
+              <option value="todas">Todas</option>
+              <option value="pendentes">Pendentes</option>
+              <option value="concluidas">Concluídas</option>
+              <option value="atrasadas">Atrasadas</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filtro-categoria">Categoria</label>
+            <select id="filtro-categoria">
+              <option value="todas">Todas as categorias</option>
+              <option value="pessoal">Pessoal</option>
+              <option value="trabalho">Trabalho</option>
+              <option value="estudos">Estudos</option>
+            </select>
+          </div>
+        </div>
+
+        <p id="mensagem-vazia" class="empty-state">Você ainda não tem tarefas. Adicione a primeira!</p>
+        <ul id="task-list" class="task-list" aria-label="Lista de tarefas"></ul>
+      </section>
+    </main>
+  </div>
+
+  <!-- Cadastro e edição de tarefas no mesmo modal. -->
+  <dialog id="modal-tarefa" class="task-modal" aria-labelledby="titulo-modal-tarefa">
+    <form id="task-form" class="task-dialog-form">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">ORGANIZE SUA ROTINA</p>
+          <h2 id="titulo-modal-tarefa">Criar tarefa</h2>
+        </div>
+        <button type="button" id="fechar-modal-tarefa" class="icon-button" aria-label="Fechar janela">✕</button>
+      </div>
+
+      <div class="field">
+        <label for="task-input">Nome da tarefa</label>
+        <input id="task-input" type="text" maxlength="120" placeholder="Ex.: Entregar relatório" required>
+      </div>
+
+      <div class="task-dialog-grid">
+        <div class="field">
+          <label for="task-category">Categoria</label>
+          <select id="task-category">
+            <option value="pessoal">Pessoal</option>
+            <option value="trabalho">Trabalho</option>
+            <option value="estudos">Estudos</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="task-priority">Prioridade</label>
+          <select id="task-priority">
+            <option value="baixa">Baixa</option>
+            <option value="media" selected>Média</option>
+            <option value="alta">Alta</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="task-dialog-grid task-deadline-fields">
+        <div class="field">
+          <label for="task-date">Data da tarefa</label>
+          <input id="task-date" type="date">
+        </div>
+        <div class="field">
+          <label for="task-time">Horário (opcional)</label>
+          <input id="task-time" type="time" step="60" disabled>
+        </div>
+      </div>
+      <small class="field-help">Escolha uma data para liberar o horário. Sem horário, o prazo termina às 23h59 do dia escolhido.</small>
+
+      <label class="recurrence-toggle" for="task-recurring">
+        <input id="task-recurring" type="checkbox">
+        <span>
+          <strong>Tarefa recorrente</strong>
+          <small>Repetir automaticamente após concluir</small>
+        </span>
+      </label>
+
+      <div id="campos-recorrencia" class="field recurrence-fields" hidden>
+        <label for="task-frequency">Repetir</label>
+        <select id="task-frequency">
+          <option value="diaria">Todos os dias</option>
+          <option value="semanal" selected>Toda semana</option>
+          <option value="mensal">Todo mês</option>
+        </select>
+        <small class="field-help">Uma tarefa recorrente precisa de data. Ao concluir, a próxima data é agendada automaticamente.</small>
+      </div>
+
+      <p id="mensagem-tarefa" class="message" role="status" aria-live="polite" hidden></p>
+      <div class="task-modal-actions">
+        <button type="button" id="cancelar-tarefa" class="outline-button">Cancelar</button>
+        <button id="adicionar-tarefa" type="submit" class="primary-button">Criar tarefa</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- O PERFIL É UM MODAL: não precisamos mais de perfil.html. -->
+  <dialog id="modal-perfil" class="profile-modal" aria-labelledby="titulo-perfil">
+    <div class="modal-header">
+      <div>
+        <p class="eyebrow">MINHA CONTA</p>
+        <h2 id="titulo-perfil">Meu perfil</h2>
+      </div>
+      <button type="button" id="fechar-perfil" class="icon-button" aria-label="Fechar perfil">✕</button>
+    </div>
+
+    <div class="profile-identity">
+      <div class="profile-avatar" aria-hidden="true"><span id="avatar-modal">U</span></div>
+      <strong id="modal-nome-exibido">Minha conta</strong>
+      <p>Seus dados no Organiza</p>
+    </div>
+
+    <div class="profile-data">
+      <div><span>E-mail</span><strong id="modal-email">Carregando...</strong></div>
+      <div><span>Membro desde</span><strong id="modal-data">Carregando...</strong></div>
+      <div><span>Total de tarefas</span><strong id="modal-total">Carregando...</strong></div>
+    </div>
+
+    <form id="form-perfil-modal" class="profile-form">
+      <label for="modal-nome">Seu nome</label>
+      <input id="modal-nome" type="text" maxlength="40" placeholder="Como podemos chamar você?" required>
+      <button id="modal-salvar" type="submit" class="primary-button" disabled>Salvar alterações</button>
+    </form>
+    <p id="modal-mensagem" class="message" role="status" aria-live="polite" hidden></p>
+
+    <div class="profile-footer">
+      <button type="button" id="sair-conta" class="logout-button">↪ Sair da conta</button>
+    </div>
+  </dialog>
+</body>
+</html>
