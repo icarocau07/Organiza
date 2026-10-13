@@ -429,3 +429,37 @@ input::placeholder { color: var(--muted); opacity: .85; }
 @media (max-width: 480px) {
   .notifications-body { padding: 16px; }
 }
+
+/* NOVO SINO DO ORGANIZA */
+
+#abrir-notificacoes.notification-button {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    padding: 0;
+}
+
+#abrir-notificacoes.notification-button:hover {
+    background: transparent;
+    border-color: transparent;
+    opacity: 0.75;
+}
+
+/* Sino preto - modo claro */
+
+.notification-button .bell-icon {
+    display: block;
+    width: 25px;
+    height: 25px;
+
+    background-image: url("/icons/sino-preto.png");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Sino branco - modo escuro */
+
+:root[data-theme="dark"] .notification-button .bell-icon {
+    background-image: url("/icons/sino-branco.png");
+}
