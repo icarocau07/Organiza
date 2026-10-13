@@ -542,6 +542,11 @@
     mostrarMensagem(elementos.mensagemPerfil, "");
 
     try {
+      // Remove a inscrição deste dispositivo antes do logout (evita avisos de outra conta).
+      if (typeof window.organizaDisablePushForLogout === "function") {
+        try { await window.organizaDisablePushForLogout(); }
+        catch (erroPush) { console.warn("Não foi possível desativar push no logout:", erroPush.message); }
+      }
       const { error } = await banco.auth.signOut();
       if (error) throw error;
       window.location.replace("./");

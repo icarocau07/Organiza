@@ -26,6 +26,7 @@ Um aplicativo web responsivo para organizar tarefas pessoais, de trabalho e de e
 - 🌙 Modo escuro com transição suave e preferência salva no navegador.
 - 📱 Layout responsivo para desktop e celular.
 - ☁️ Tarefas sincronizadas pelo Supabase, separadas por usuário via **Row Level Security (RLS)**.
+- 🔔 **Web Push**: notificações de lembrete antes da tarefa e aviso de atraso, mesmo com o site fechado quando o navegador permitir. Ativação individual por dispositivo.
 
 ## 🛠️ Tecnologias
 
@@ -34,7 +35,8 @@ Um aplicativo web responsivo para organizar tarefas pessoais, de trabalho e de e
 | Interface | HTML5, CSS3 e JavaScript (sem framework) |
 | Autenticação | Supabase Auth |
 | Banco de dados | PostgreSQL, Supabase e RLS |
-| Hospedagem | Netlify |
+| Hospedagem | Netlify (site estático + Functions + Scheduled Functions) |
+| Notificações | Service Worker, Web Push/VAPID, web-push, Luxon |
 | E-mail transacional nos testes | SMTP configurado no painel do Supabase |
 
 ## 📁 Estrutura do projeto
@@ -60,6 +62,12 @@ organiza/
 ├── netlify.toml
 └── README.md
 ```
+
+## 🔔 Configurar notificações Web Push
+
+**Guia completo:** [Instalar Web Push com Supabase e Netlify](docs/WEB_PUSH_PASSO_A_PASSO.md).
+
+O Web Push exige executar `supabase/sql/04_notificacoes_web_push.sql`, configurar cinco variáveis de ambiente **somente no Netlify** e publicar via GitHub. As notificações precisam ser autorizadas pelo usuário no sino da `home.html`. **Não há entrega garantida ao minuto.**
 
 ## ▶️ Como executar localmente
 
@@ -103,3 +111,6 @@ Notificações de prazos, pesquisa, indicadores de produtividade e melhorias de 
 ---
 
 **Organiza** — um projeto de aprendizado em desenvolvimento web, com aplicação real publicada na internet.
+
+
+> **Aviso:** A versão Web Push requer Functions do Netlify; abrir apenas o HTML com Live Server permite editar as tarefas, mas não executa as Functions de envio.

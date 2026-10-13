@@ -16,9 +16,12 @@
     })();
   </script>
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icons/icon-192.png">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="config.js" defer></script>
   <script src="script.js" defer></script>
+  <script src="push.js" defer></script>
 </head>
 <body>
   <div class="page-shell">
@@ -34,6 +37,7 @@
           </div>
         </div>
         <div class="top-actions">
+          <button type="button" id="abrir-notificacoes" class="icon-button notification-button" aria-label="Configurar notificações" title="Lembretes de tarefas">🔔</button>
           <button type="button" id="theme-toggle" class="icon-button" aria-label="Alternar tema" title="Alternar modo claro/escuro">☾</button>
           <button type="button" id="abrir-perfil" class="avatar-button" aria-label="Abrir meu perfil" title="Meu perfil">
             <span id="avatar-topo">U</span>
@@ -196,6 +200,37 @@
 
     <div class="profile-footer">
       <button type="button" id="sair-conta" class="logout-button">↪ Sair da conta</button>
+    </div>
+  </dialog>
+
+  <!-- Lembretes Web Push por navegador: só ativados com permissão explícita. -->
+  <dialog id="modal-notificacoes" class="profile-modal" aria-labelledby="titulo-notificacoes">
+    <div class="modal-header">
+      <div>
+        <p class="eyebrow">LEMBRETES DE TAREFAS</p>
+        <h2 id="titulo-notificacoes">Notificações 🔔</h2>
+      </div>
+      <button id="fechar-notificacoes" type="button" class="icon-button" aria-label="Fechar notificações">✕</button>
+    </div>
+    <div class="notifications-body">
+      <p id="push-status" class="notification-status">Verificando este dispositivo...</p>
+      <div class="field">
+        <label for="push-antecedencia">Avisar antes do horário</label>
+        <select id="push-antecedencia">
+          <option value="5">5 minutos</option>
+          <option value="15" selected>15 minutos</option>
+          <option value="30">30 minutos</option>
+          <option value="60">1 hora</option>
+        </select>
+      </div>
+      <p class="field-help">Somente tarefas pendentes com data e horário recebem avisos. As configurações são individuais por dispositivo.</p>
+      <div class="notifications-actions">
+        <button type="button" id="push-ativar" class="primary-button">Ativar notificações</button>
+        <button type="button" id="push-testar" class="outline-button" disabled>Enviar teste</button>
+        <button type="button" id="push-desativar" class="outline-button" disabled>Desativar neste dispositivo</button>
+      </div>
+      <p id="push-mensagem" class="message" role="status" aria-live="polite" hidden></p>
+      <p class="field-help">No iPhone, instale o Organiza na Tela de Início antes de ativar notificações. O sistema operacional precisa permitir avisos.</p>
     </div>
   </dialog>
 </body>

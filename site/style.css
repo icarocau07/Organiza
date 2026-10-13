@@ -414,3 +414,18 @@ input::placeholder { color: var(--muted); opacity: .85; }
   cursor: not-allowed;
   background: var(--surface-alt);
 }
+
+
+/* Modal de lembretes Web Push */
+.notification-button { font-size: 18px; }
+.notifications-body { padding: 18px 24px 26px; display: flex; flex-direction: column; gap: 14px; }
+.notifications-body .field { display: flex; flex-direction: column; gap: 7px; }
+.notifications-body label { color: var(--text); font-size: 14px; font-weight: 700; }
+.notifications-body select { width: 100%; }
+.notification-status { color: var(--muted); background: var(--surface-alt); border: 1px solid var(--border); padding: 13px; border-radius: 10px; font-size: 14px; }
+.notifications-actions { display: flex; flex-direction: column; gap: 10px; }
+.notifications-actions button { width: 100%; }
+.notifications-body .message { margin: 0; }
+@media (max-width: 480px) {
+  .notifications-body { padding: 16px; }
+}
