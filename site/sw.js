@@ -1,3 +1,12 @@
+// Atualiza esta versão do Service Worker assim que for publicada.
+// Não elimina inscrições Web Push nem mexe nas preferências do usuário.
+self.addEventListener("install", (event) => {
+  event.waitUntil(self.skipWaiting());
+});
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 // Service Worker minimalista: não intercepta rede nem mantém cache offline.
 // Recebe eventos Web Push mesmo quando não há abas do Organiza abertas.
 self.addEventListener("push", (event) => {
@@ -14,7 +23,12 @@ self.addEventListener("push", (event) => {
   const body = typeof payload.body === "string" ? payload.body : "Você tem uma tarefa para realizar.";
   const tag = typeof payload.tag === "string" ? payload.tag : "organiza-lembrete";
   event.waitUntil(self.registration.showNotification(title, {
-    body, icon: "/icons/icon-192.png", badge: "/icons/icon-192.png", tag,
+    body,
+    // Ícone expandido: ✓ azul, sem quadrado ao redor.
+    icon: "/icons/checkmark-192.png",
+    // Ícone pequeno do Android: apenas ✓ monocromático e transparente.
+    badge: "/icons/checkmark-badge-96.png",
+    tag,
     data: { url: "/home.html" }
   }));
 });
