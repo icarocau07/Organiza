@@ -84,13 +84,3 @@ O aplicativo foi projetado para manter as tarefas de cada usuário separadas com
 ### Atualização: lembretes antes do horário (outubro de 2026)
 
 Lembretes antecipados são enviados **somente antes do prazo**. O aviso separado após o vencimento foi removido. O agendamento roda a cada cinco minutos e a entrega pelo navegador pode variar, portanto a opção de **15 minutos** é recomendada. Veja [o guia de compatibilidade](docs/CORRECAO_HORARIOS_NAVEGADORES.md).
-
-### Atualização: ✓ da logo nas notificações (outubro de 2026)
-
-As notificações agora utilizam **apenas o símbolo de certo da identidade visual do Organiza**:
-
-- `site/icons/checkmark-192.png`: ✓ azul transparente para a notificação expandida;
-- `site/icons/checkmark-badge-96.png`: ✓ branco transparente para a barra de status do Android (o sistema pode aplicar sua própria cor);
-- `site/sw.js`: atualizado para usar ambos os arquivos.
-
-Os ícones de instalação do aplicativo (`icon-192.png`/`icon-512.png`) permanecem inalterados. A alteração **não exige SQL, novas chaves VAPID ou mudanças nas Functions**. O novo Service Worker é ativado ao atualizar o site. Veja [guia rápido](docs/ICONE_NOTIFICACOES.md).
