@@ -75,21 +75,15 @@ Caso queira manter o deploy manual, também é possível enviar somente a pasta 
 
 O aplicativo foi projetado para manter as tarefas de cada usuário separadas com autenticação e **RLS**. Antes de divulgar o projeto a outras pessoas, verifique as políticas do banco e faça testes usando duas contas diferentes. O SMTP Gmail é adequado para testes, mas não é a solução recomendada para um serviço público com muitos usuários.
 
-## 📌 Próximas ideias
-
-Notificações de prazos, pesquisa, indicadores de produtividade e melhorias de acessibilidade.
-
 ---
 
 **Organiza** — um projeto de aprendizado em desenvolvimento web, com aplicação real publicada na internet.
-
 
 > **Aviso:** A versão Web Push requer Functions do Netlify; abrir apenas o HTML com Live Server permite editar as tarefas, mas não executa as Functions de envio.
 
 ### Atualização: lembretes antes do horário (outubro de 2026)
 
 Lembretes antecipados são enviados **somente antes do prazo**. O aviso separado após o vencimento foi removido. O agendamento roda a cada cinco minutos e a entrega pelo navegador pode variar, portanto a opção de **15 minutos** é recomendada. Veja [o guia de compatibilidade](docs/CORRECAO_HORARIOS_NAVEGADORES.md).
-
 
 ### Atualização: ✓ da logo nas notificações (outubro de 2026)
 
